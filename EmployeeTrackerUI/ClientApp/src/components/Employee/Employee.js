@@ -44,8 +44,11 @@ const Employee = (props) => {
 
     useEffect(() => {
         getEmployee();
+        
     }, [])
 
+
+    
 
     const getEmployee = async () => {
 
