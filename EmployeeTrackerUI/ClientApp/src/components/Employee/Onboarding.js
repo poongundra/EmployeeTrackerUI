@@ -87,7 +87,7 @@ const Onboarding = (props) => {
                             <h1 className="modal-title fs-5" id="staticBackdropLabel">Add Onboarding Details</h1>
                             <button type="button" className="btn-close" onClick={cancelClick} aria-label="Close"></button>
                         </div>
-                        <div class="modal-body">
+                        <div className="modal-body">
 
                             <div className="container">
                                 <div className="row">
