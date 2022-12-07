@@ -1,17 +1,23 @@
 ﻿import React, { useEffect, useState } from 'react'
+import { format, compareAsc } from 'date-fns'
 import * as OnboardingApi from '../../api/onboardingApi';
 
 const Onboarding = (props) => {
 
     const [scoreResult, setScoreResult] = useState([]);
+    const [empResult, setEmpResult] = useState([]);
 
     const [id, setId] = useState("");
-    const [employeeId, setEmployeeId] = useState("");
+    const [employeeId, setEmployeeId] = useState();
     const [jobName, setJobName] = useState("");
     const [jobStatus, setJobStatus] = useState("");
     const [jobDueDate, setJobDueDate] = useState("");
     const [jobOwner, setJobOwner] = useState("");
     const [jobCompletedDate, setJobCompletedDate] = useState("");
+
+   
+    const [employee, setEmployee] = useState({});
+    const [employeeName, setEmployeeName] = useState();
 
 
     const [showModal, setShowModal] = useState(false);
@@ -29,16 +35,13 @@ const Onboarding = (props) => {
 
     useEffect(() => {
         getOnboarding();
+        getEmployeeDetails();
     }, [])
 
 
 
     const getOnboarding = async () => {
-
-
         try {
-
-
             const response = await OnboardingApi.getOnboarding();
             setScoreResult(response?.data);
             console.log('response');
@@ -53,11 +56,34 @@ const Onboarding = (props) => {
 
         }
     }
+    const getEmployeeDetails = async () => {
+        try {
+            const response = await OnboardingApi.getEmployeeDetails();
+            setEmpResult(response?.data);
+            console.log('Get Employee response');
+            //setEmployeeId(response?.data?.id);
+
+            
+            setEmployeeId(empResult?.map((item) => {
+                return item.id;
+            }))
+            
+
+            //console.log(response?.data);
+
+        } catch (error) {
+            console.error(error);
+            setEmpResult({});
+
+
+        }
+    }
 
     const submitClicked = async () => {
         let request = {
             id,
-            employeeId,
+            employeeId : employee.id,
+            employeeName : employee.name,
             jobName,
             jobStatus,
             jobDueDate : new Date(jobDueDate),
@@ -80,7 +106,7 @@ const Onboarding = (props) => {
             <button type="button" className="btn btn-primary" data-bs-toggle="modal" onClick={createClick}>
                 Add Onboarding
             </button>
-            <div className={`modal fade ${showModal ? 'show d-block' : 'd-none'} `} id="staticBackdrop" data-bs-backdrop="static">
+            <div className={`modal fade ${showModal ? 'show d-block' : 'd-none'} `} style={{ 'background': 'linear-gradient(45deg, black, transparent)' }} id="staticBackdrop" data-bs-backdrop="static">
                 <div className="modal-dialog  modal-xl">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -103,8 +129,24 @@ const Onboarding = (props) => {
                                                 </div>
                                                 <div className="col-md-6 py-2">
                                                     <div className="form-group">
-                                                        <label htmlFor="id">Employee Id</label>
-                                                        <input type="number" className="form-control" onChange={(e) => setEmployeeId(e.target.value)} value={employeeId} id="employeeId" />
+                                                        <label htmlFor="status">Employee</label>
+                                                        <select className="form-control" onChange={(e) => {
+
+
+                                                            var index = empResult.findIndex((x) => x.id === +e.target.value);
+                                                            setEmployeeId(e.target.value);
+                                                            setEmployee(empResult[index])
+                                                            console.log(empResult[index]);
+
+                                                        }
+                                                        } value={employeeId} >
+                                                            <option value="">--SelectOne--</option>
+                                                            {
+                                                                empResult?.map((item) => {
+                                                                    return (<option key={item.id}  value={item.id}>{item.name}</option>)
+                                                                })
+                                                            }
+                                                        </select>
                                                     </div>
                                                 </div>
 
@@ -112,14 +154,23 @@ const Onboarding = (props) => {
                                                 <div className="col-md-6 py-2">
                                                     <div className="form-group">
                                                         <label htmlFor="email">Job Name</label>
-                                                        <input type="text" className="form-control" onChange={(e) => setJobName(e.target.value)} value={jobName} id="jobName" />
+                                                        <input type="text" className="form-control" onChange={(e) => setJobName(e.target.value)} value={jobName} id="jobName" required />
+                                                        <div className="valid-feedback">
+                                                            Looks good!
+                                                        </div>
                                                     </div>
                                                 </div>
 
                                                 <div className="col-md-6 py-2">
                                                     <div className="form-group">
                                                         <label htmlFor="designation">Job Status</label>
-                                                        <input className="form-control" onChange={(e) => setJobStatus(e.target.value)} id="jobStatus" value={jobStatus} rows="3" />
+                                                        <select className="form-control" onChange={(e) => setJobStatus(e.target.value)} id="status" value={jobStatus} >
+                                                            <option value="">--SelectOne--</option>
+                                                                <option value="Assigned">Assgined</option>
+                                                            <option value="In Progress">In Progress</option>
+                                                            <option value="On Hold">On Hold</option>
+                                                                <option value="Completed">Completed</option>
+                                                            </select>
                                                     </div>
                                                 </div>
                                                 <div className="col-md-6 py-2">
@@ -131,13 +182,13 @@ const Onboarding = (props) => {
                                                 <div className="col-md-6 py-2">
                                                     <div className="form-group">
                                                         <label htmlFor="dateOfbBirth">Job Due Date</label>
-                                                        <input className="form-control" onChange={(e) => setJobDueDate(e.target.value)} id="jobDueDate" value={jobDueDate} />
+                                                        <input type="date" className="form-control" onChange={(e) => setJobDueDate(e.target.value)} id="jobDueDate" value={jobDueDate} />
                                                     </div>
                                                 </div>
                                                 <div className="col-md-6 py-2">
                                                     <div className="form-group">
                                                         <label htmlFor="dateOfbBirth">Job Completed Date</label>
-                                                        <input className="form-control" onChange={(e) => setJobCompletedDate(e.target.value)} id="jobCompletedDate" value={jobCompletedDate} />
+                                                        <input type="date" className="form-control" onChange={(e) => setJobCompletedDate(e.target.value)} id="jobCompletedDate" value={jobCompletedDate} />
                                                     </div>
                                                 </div>
                                                 
@@ -166,6 +217,7 @@ const Onboarding = (props) => {
                                 <tr>
                                     <th scope="col">ID</th>
                                     <th scope="col">Employee ID</th>
+                                    <th scope="col">Employee Name</th>
                                     <th scope="col">Job Name</th>
                                     <th scope="col">Job Status</th>
                                     <th scope="col">Job Due Date</th>
@@ -182,11 +234,13 @@ const Onboarding = (props) => {
                                         return (<tr key={item.id} >
                                             <td>{item.id}</td>
                                             <td>{item.employeeId}</td>
+                                            <td>{item.employeeName}</td>
                                             <td>{item.jobName}</td>
                                             <td>{item.jobStatus}</td>
-                                            <td>{item.jobDueDate}</td>
+                                            <td> {format(new Date(item.jobDueDate), 'MM/dd/yyyy')}</td> 
+                                            
                                             <td>{item.jobOwner}</td>
-                                            <td>{item.jobCompletedDate}</td>
+                                            <td>{format(new Date(item.jobCompletedDate), 'MM/dd/yyyy')}</td>
                                             
                                         </tr>)
                                     })

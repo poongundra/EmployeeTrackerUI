@@ -1,7 +1,4 @@
 ﻿import axios from 'axios';
-
-
-
 export async function addEmployee(employeeRequestDto) {
 
     let baseUrl = 'http://localhost:1991';

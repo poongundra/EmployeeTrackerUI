@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useState } from 'react'
+import { format, compareAsc } from 'date-fns'
 import * as EmployeeApi from '../../api/employeeApi';
 
 const Employee = (props) => {
@@ -101,7 +102,7 @@ const Employee = (props) => {
             <button type="button" className="btn btn-primary" data-bs-toggle="modal" onClick={createClick}>
                 Add Employee
             </button>
-            <div className={`modal fade ${showModal ? 'show d-block' : 'd-none'} `} id="staticBackdrop" data-bs-backdrop="static">
+            <div className={`modal fade ${showModal ? 'show d-block' : 'd-none'} `} style={{ 'background': 'linear-gradient(45deg, black, transparent)' }} id="staticBackdrop" data-bs-backdrop="static">
                 <div className="modal-dialog  modal-xl">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -151,7 +152,7 @@ const Employee = (props) => {
                                                 <div className="col-md-6 py-2">
                                                     <div className="form-group">
                                                         <label htmlFor="dateOfbBirth">DOB</label>
-                                                        <input className="form-control" onChange={(e) => setDateOfBirth(e.target.value)} id="dateOfBirth" value={dateOfBirth} />
+                                                        <input type="date" className="form-control" onChange={(e) => setDateOfBirth(e.target.value)} id="dateOfBirth" value={dateOfBirth} />
                                                     </div>
                                                 </div>
                                                 <div className="col-md-6 py-2">
@@ -227,7 +228,7 @@ const Employee = (props) => {
                                             <td>{item.id}</td>
                                             <td>{item.name}</td>
                                             <td>{item.designation}</td>
-                                            <td>{item.dateOfBirth}</td>
+                                            <td>{format(new Date(item.dateOfBirth), 'MM/dd/yyyy')}</td>
                                             <td>{item.contactNumber}</td>
                                             <td>{item.aadharNumber}</td>
                                             <td>{item.manager}</td>
